@@ -1,4 +1,5 @@
 import React from 'react';
+import { withToken } from '../api';
 
 const STATUS_COLORS = {
   已投递: '#94a3b8',
@@ -54,7 +55,7 @@ export default function ApplicationTable({ rows, onEdit, onDelete }) {
               <td>{r.interview_date || '-'}</td>
               <td>
                 {r.resume_file ? (
-                  <a href={r.resume_file} target="_blank" rel="noreferrer">
+                  <a href={withToken(r.resume_file)} target="_blank" rel="noreferrer">
                     查看
                   </a>
                 ) : (

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Dashboard from './pages/Dashboard.jsx';
+import Login from './pages/Login.jsx';
 import SearchBar from './components/SearchBar.jsx';
 import ApplicationTable from './components/ApplicationTable.jsx';
 import ApplicationForm from './components/ApplicationForm.jsx';
@@ -10,11 +11,15 @@ import {
   deleteApplication,
   getStatusOptions,
   getStats,
+  getToken,
+  clearToken,
+  setUnauthorizedHandler,
 } from './api';
 
 const EMPTY_FILTERS = { company: '', position: '', status: '' };
 
 export default function App() {
+  const [authed, setAuthed] = useState(!!getToken());
   const [rows, setRows] = useState([]);
   const [stats, setStats] = useState(null);
   const [statusOptions, setStatusOptions] = useState([]);
@@ -39,17 +44,23 @@ export default function App() {
     }
   }, []);
 
-  // 初始化：状态枚举 + 数据 + 统计
+  // 初始化：状态枚举 + 数据 + 统计（登录后才加载）
   useEffect(() => {
+    setUnauthorizedHandler(() => setAuthed(false));
+  }, []);
+
+  useEffect(() => {
+    if (!authed) return;
     getStatusOptions().then(setStatusOptions).catch((e) => setError(e.message));
     loadStats();
-  }, [loadStats]);
+  }, [authed, loadStats]);
 
   // 过滤变化时防抖加载列表
   useEffect(() => {
+    if (!authed) return;
     const t = setTimeout(() => loadRows(filters), 250);
     return () => clearTimeout(t);
-  }, [filters, loadRows]);
+  }, [authed, filters, loadRows]);
 
   async function refresh() {
     await Promise.all([loadRows(filters), loadStats()]);
@@ -90,13 +101,27 @@ export default function App() {
     setShowForm(true);
   }
 
+  function handleLogout() {
+    clearToken();
+    setAuthed(false);
+  }
+
+  if (!authed) {
+    return <Login onSuccess={() => setAuthed(true)} />;
+  }
+
   return (
     <div className="app">
       <header className="app-header">
         <h1>🎯 秋招投递助手</h1>
-        <button className="btn-primary" onClick={openNew}>
-          + 新增投递
-        </button>
+        <div className="header-actions">
+          <button className="btn-primary" onClick={openNew}>
+            + 新增投递
+          </button>
+          <button className="btn-secondary" onClick={handleLogout}>
+            退出登录
+          </button>
+        </div>
       </header>
 
       {error && (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { uploadResume } from '../api';
+import { uploadResume, withToken } from '../api';
 
 const EMPTY = {
   company_name: '',
@@ -119,7 +119,7 @@ export default function ApplicationForm({ initial, statusOptions, onSubmit, onCa
               <input type="file" accept=".pdf,.doc,.docx" onChange={handleFile} />
               {uploading && <span className="hint">上传中…</span>}
               {form.resume_file && (
-                <a href={form.resume_file} target="_blank" rel="noreferrer" className="hint">
+                <a href={withToken(form.resume_file)} target="_blank" rel="noreferrer" className="hint">
                   已上传，点击查看
                 </a>
               )}

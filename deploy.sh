@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# 秋招投递助手 —— Linux 服务器一键部署脚本
-# 用法：在项目根目录执行  bash deploy.sh
+# 秋招投递助手 —— Linux 服务器部署脚本
+# 用法：
+#   bash deploy.sh          仅安装依赖、构建、启动（默认，不动 git）
+#   bash deploy.sh --pull   先 git pull 拉取最新代码再部署
 set -e
 
-echo "==> 拉取最新代码"
-git pull
+if [ "$1" = "--pull" ]; then
+  echo "==> 拉取最新代码"
+  git pull
+fi
 
 echo "==> 安装后端依赖（含 better-sqlite3 原生编译）"
 cd server
